@@ -100,4 +100,58 @@ const attach = (file) => {
   return fs.readFileSync(file);
 };
 
-module.exports = { validate, attach };
+/*
+  Generate disk information from the Block Availability Map (BAM).
+  Using the base address and offsets instead of numerous
+  magic addresses with the hope that it's easier to follow.
+  The comments also intend to convey things that are
+  ignored and why.
+*/
+const getBAMInfo = (disk) => {
+  const BAMOffset = 0x16500;  // ends at 0x165FF
+  let BAMInfo = {};
+
+  // 0x00-0x01 location of start of directory listing
+  // advised in spec to ignore and always use 18/1
+
+  // dos version is either 0x41 "A" or 0x50 "P"
+  // appears to be second character of dos type below
+  BAMInfo.dos_version_type = String.fromCharCode(disk[BAMOffset + 0x02]);
+
+  // 0x03 ignored (unused)
+  // 0x04-0x8F are actual BAM entries handled below
+
+  // name of the disk (displayed at top of directory listing)
+  // currently not handling c64 characters
+  // disk name is padded to 16 characters (0x9F) with 0xA0 values
+  BAMInfo.name = disk.slice(BAMOffset + 0x90, BAMOffset + 0x90 + 16).filter(ch => ch !== 0xA0).toString();
+
+  // 0xA0-0xA1 ignored (0xA0)
+
+  // displayed between disk name and dos type
+  // in the directory listing
+  BAMInfo.id = String.fromCharCode(disk[BAMOffset + 0xA2]) + String.fromCharCode(disk[BAMOffset + 0xA3]);
+
+  // 0xA4 ignored (0xA0)
+
+  // DOS type which is frequently "2A", but might also be
+  // the values "4A" or "2P"
+  BAMInfo.dostype = String.fromCharCode(disk[BAMOffset + 0xA5]) + String.fromCharCode(disk[BAMOffset + 0xA6]);
+
+  // 0xA7-0xAA ignored (0xA0)
+  // 0xAB-0xFF currently unsupported 40-track information, else 0x00 values
+
+  // 0x04 - 0x8F are actual BAM entries (from above)
+  // free blocks don't match the emulators or the math
+  // but it's the right number according to the spec
+  // as far as I can tell even when manually
+  // inspecting the bits
+  BAMInfo.free = 0;
+  for (let i = 0x04; i <= 0x8C; i += 0x04) {
+    BAMInfo.free += Number(disk[BAMOffset + i]);
+  }
+
+  return BAMInfo;
+};
+
+module.exports = { attach, validate, getBAMInfo };
