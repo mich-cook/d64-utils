@@ -1,0 +1,25 @@
+{
+  "name": "d64-utils",
+  "version": "0.1.0",
+  "description": ".d64 disk image handling",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mich-cook/d64-utils.git"
+  },
+  "keywords": [
+    "c64",
+    "1541",
+    "c1541",
+    "commodore"
+  ],
+  "author": "mich-cook",
+  "license": "AGPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/mich-cook/d64-utils/issues"
+  },
+  "homepage": "https://github.com/mich-cook/d64-utils#readme"
+}
