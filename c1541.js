@@ -89,5 +89,15 @@ const validate = (disk) => {
 
 };
 
-const disk = fs.readFileSync(``);
-console.log(validate(disk));
+/*
+  Take a file location and return a representation of the
+  disk for use with the other functionailty.
+
+  Eventually this should be internalized better.
+  Well, eventually we'll structure the whole thing better.
+*/
+const attach = (file) => {
+  return fs.readFileSync(file);
+};
+
+module.exports = { validate, attach };
