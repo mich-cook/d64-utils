@@ -224,6 +224,15 @@ const getDirectoryEntryForOffset = (disk, offset) => {
   };
 };
 
+/*
+  Directory listing is spread across track 18 (and usually
+  only track 18) via a linked list spread across the sectors.
+  Each sector has a number of directory entries in it.
+  There doesn't appear to be any specific indicator that
+  a directory entry slot (or subsequent ones) isn't used other
+  than the (arguably safe) inference that no data means no
+  directory entry.
+*/
 const getFileList = disk => {
   let start = 0x16600;  // track 18, sector 1. ignore the BAM.
   let list = [];
@@ -261,6 +270,15 @@ const getFileList = disk => {
 
 };
 
+/*
+  Get the directory listing as it would be shown on the
+  actual hardware. Similar output to running:
+  LOAD"$",8
+  First entry will be the header.
+  Last entry will be the blocks free.
+  Entries in the middle is the file list.
+  Should also look like the output from c1541.
+*/
 const list = disk => {
   const BAM = getBAMInfo(disk);
   const files = getFileList(disk);
