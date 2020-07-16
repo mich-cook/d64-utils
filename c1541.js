@@ -63,6 +63,9 @@
 
 const fs = require('fs');
 
+// constants for a disk
+const sectorSize = 0x100;    // 256 bytes per sector
+
 /*
   List of validation checks attempting to ensure the disk is valid
   and hopefully safe to use.
@@ -219,6 +222,43 @@ const getDirectoryEntryForOffset = (disk, offset) => {
     closed,
     locked
   };
+};
+
+const getFileList = disk => {
+  let start = 0x16600;  // track 18, sector 1. ignore the BAM.
+  let list = [];
+
+  // these basically duplicate start above
+  // improve seeking to these can generate that
+  let nextListingTrack  = 0x12;
+  let nextListingSector = 0x04;
+
+  // 0x00/0xFF indicates end of directory linked list
+  // keep going until we reach the end
+  while((nextListingTrack !== 0x00) && (nextListingSector !== 0xFF)) {
+    // the 8 possible entries in a sector are 0x20 apart
+    for (let i = 0x0; i <= 0xE0; i += 0x20) {
+      const entry = getDirectoryEntryForOffset(disk, start + i);
+      // drop entries that look to be invalid/deleted/empty.
+      // there's nothing in the spec that says that we can't have
+      // a blank spot then an entry after it even though that
+      // seems highly unlikely. so for now we won't bail on the
+      // sector upon the first empty entry.
+      if (entry !== null) {
+        list.push(entry);
+      }
+    }
+
+    // T/S pointer to next sector in the list
+    nextListingTrack  = disk[start];
+    nextListingSector = disk[start + 0x01];
+
+    // TODO: BUG: This only works in track 18.
+    start = 0x16500 + (sectorSize * nextListingSector);
+  }
+
+  return list;
+
 };
 
 module.exports = { attach, validate, getBAMInfo };
