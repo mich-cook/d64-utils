@@ -76,7 +76,7 @@ const BAMOffset  = 0x16500;   // ends at 0x165FF
 
   When 40-track disks are supported, the file sizes are ready to go.
 */
-const validate = (disk) => {
+const validate = disk => {
 
   switch(disk.length) {
     case 174848:  // 35 track, no errors
@@ -100,7 +100,7 @@ const validate = (disk) => {
   Eventually this should be internalized better.
   Well, eventually we'll structure the whole thing better.
 */
-const attach = (file) => {
+const attach = file => {
   return fs.readFileSync(file);
 };
 
@@ -111,7 +111,7 @@ const attach = (file) => {
   The comments also intend to convey things that are
   ignored and why.
 */
-const getBAMInfo = (disk) => {
+const getBAMInfo = disk => {
   let BAMInfo = {};
 
   // 0x00-0x01 location of start of directory listing
