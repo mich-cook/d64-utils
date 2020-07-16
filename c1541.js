@@ -64,7 +64,8 @@
 const fs = require('fs');
 
 // constants for a disk
-const sectorSize = 0x100;    // 256 bytes per sector
+const sectorSize = 0x100;     // 256 bytes per sector
+const BAMOffset  = 0x16500;   // ends at 0x165FF
 
 /*
   List of validation checks attempting to ensure the disk is valid
@@ -111,7 +112,6 @@ const attach = (file) => {
   ignored and why.
 */
 const getBAMInfo = (disk) => {
-  const BAMOffset = 0x16500;  // ends at 0x165FF
   let BAMInfo = {};
 
   // 0x00-0x01 location of start of directory listing
