@@ -154,4 +154,71 @@ const getBAMInfo = (disk) => {
   return BAMInfo;
 };
 
+
+/*
+  For a specific track/sector offset, get the directory entry
+  that is located there.
+
+  Entries are planned to be wholly in track 18, but it's
+  allegedly possible to escape to a different track. Not sure
+  if there's any sort of sanity check we can do so leaving
+  it alone for now. It looks like we might be able to expect
+  they only start on addresses that are a multiple of 0x20,
+  but there's nothing that says that must be the case that
+  I've seen.
+*/
+const getDirectoryEntryForOffset = (disk, offset) => {
+  // 0x01-0x02 are pointer to next directory listing sector
+  // and are only valid for first entry of the sector.
+  // (0x00 0x00 for the rest)
+  // this won't be included in the listing entry response
+  // and is expected to be handled outside of this function.
+
+  // binary string of file type marks
+  let [ closed, locked,,,, ...typeBits ] = disk[offset + 0x2].toString(2).split('');
+  let fileType = typeBits.join('');
+
+  switch(fileType) {
+    case '000': fileType = 'DEL'; break;
+    case '001': fileType = 'SEQ'; break;
+    case '010': fileType = 'PRG'; break;
+    case '011': fileType = 'USR'; break;
+    case '100': fileType = 'REL'; break;
+    default:  // appears to be invalid
+      return null;
+  }
+
+  const pointerToActualFileTrack  = disk[offset + 0x3];
+  const pointerToActualFileSector = disk[offset + 0x4];
+
+  // pointers appear to be invalid. not a real entry.
+  // remember: tracks start at 1.
+  if ((pointerToActualFileTrack === 0x00) && (pointerToActualFileSector === 0x00)) {
+    return null;
+  }
+
+  // filename is 16 characters and padded at end with
+  // 0xA0 characters which presumably are not
+  // valid in filenames.
+  //
+  // TODO: handle c64 chars?
+  //   Probably need a custom font to display, but
+  //   not sure yet what/if we need to do anything in JS
+  const filename = disk.slice(offset + 0x5, offset + 0x5 + 16).filter(ch => ch !== 0xA0).toString();
+
+  // $15/$16: location of first side-sector for REL file
+  // $17: REL file record length
+  // $18 - $1D: only used by GEOS
+
+  const totalSize = disk[offset + 0x1E] + disk[offset + 0x1F];
+
+  return {
+    "name": filename,
+    "size": totalSize,
+    "type": fileType,
+    closed,
+    locked
+  };
+};
+
 module.exports = { attach, validate, getBAMInfo };
