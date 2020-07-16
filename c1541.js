@@ -261,4 +261,22 @@ const getFileList = disk => {
 
 };
 
-module.exports = { attach, validate, getBAMInfo };
+const list = disk => {
+  const BAM = getBAMInfo(disk);
+  const files = getFileList(disk);
+  let list = [
+    `0 "${BAM.name.padEnd(16, ' ')}" ${BAM.id} ${BAM.dostype}`
+  ];
+
+  files.forEach(file => {
+    const quotedFilename = `"${file.name}"`;
+    list.push(`${String(file.size).padEnd(6, ' ')}${quotedFilename.padEnd(19, ' ')} ${file.type}`);
+  });
+
+  list.push(`${BAM.free} BLOCKS FREE`);
+
+  return list;
+
+};
+
+module.exports = { attach, validate, list, getBAMInfo };

@@ -5,3 +5,4 @@ const disk = c1541.attach(diskName);
 console.log(`disk is valid: ${c1541.validate(disk)}`);
 console.log(`BAM info:`);
 console.log(c1541.getBAMInfo(disk));
+c1541.list(disk).forEach(l => console.log(l));
