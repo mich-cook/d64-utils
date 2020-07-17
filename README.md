@@ -1,17 +1,20 @@
 # d64-utils
-Utilities to work with d64 files in node.js
+Utilities to work with d64 files (commodore 64 disk images) in node.js
 
 ## API
 
 attach(filename)
-  loads file contents into instance from filename.
-  does not (will not?) support taking a buffer or a network location
+
+* loads file contents into instance from filename.
+* does not (will not?) support taking a buffer or a network location
 
 validate()
-  does some very basic validation of the disk
+
+* does some very basic validation of the disk
 
 list()
-  displays directory listing of the disk
+
+* displays directory listing of the disk
 
 ## Example Usage:
 
