@@ -72,12 +72,11 @@ class Disk {
     Take a file location and return a representation of the
     disk for use with the other functionailty.
 
-    Eventually this should be internalized better.
-    Well, eventually we'll structure the whole thing better.
+    TODO: Error handling.
   */
-  attach = file => {
-    return fs.readFileSync(file);
-  };
+  attach(file) {
+    this.fileContents = fs.readFileSync(file);
+  }
 
   /*
     List of validation checks attempting to ensure the disk is valid
@@ -88,7 +87,9 @@ class Disk {
 
     When 40-track disks are supported, the file sizes are ready to go.
   */
-  validate = disk => {
+  validate() {
+    // TODO: verify disk has been attached successfully
+    const disk = this.fileContents;
 
     switch(disk.length) {
       case 174848:  // 35 track, no errors
@@ -112,7 +113,11 @@ class Disk {
     The comments also intend to convey things that are
     ignored and why.
   */
-  getBAMInfo = disk => {
+  getBAMInfo() {
+    // TODO: verify disk has been attached successfully
+    // and is valid
+    const disk = this.fileContents;
+
     let BAMInfo = {};
 
     // 0x00-0x01 location of start of directory listing
@@ -171,7 +176,11 @@ class Disk {
     but there's nothing that says that must be the case that
     I've seen.
   */
-  getDirectoryEntryForOffset = (disk, offset) => {
+  getDirectoryEntryForOffset(offset) {
+    // TODO: verify disk has been attached successfully
+    // and is valid
+    const disk = this.fileContents;
+
     // 0x01-0x02 are pointer to next directory listing sector
     // and are only valid for first entry of the sector.
     // (0x00 0x00 for the rest)
@@ -234,7 +243,11 @@ class Disk {
     than the (arguably safe) inference that no data means no
     directory entry.
   */
-  getFileList = disk => {
+  getFileList() {
+    // TODO: verify disk has been attached successfully
+    // and is valid
+    const disk = this.fileContents;
+
     let start = 0x16600;  // track 18, sector 1. ignore the BAM.
     let list = [];
 
@@ -248,7 +261,7 @@ class Disk {
     while((nextListingTrack !== 0x00) && (nextListingSector !== 0xFF)) {
       // the 8 possible entries in a sector are 0x20 apart
       for (let i = 0x0; i <= 0xE0; i += 0x20) {
-        const entry = this.getDirectoryEntryForOffset(disk, start + i);
+        const entry = this.getDirectoryEntryForOffset(start + i);
         // drop entries that look to be invalid/deleted/empty.
         // there's nothing in the spec that says that we can't have
         // a blank spot then an entry after it even though that
@@ -280,7 +293,11 @@ class Disk {
     Entries in the middle is the file list.
     Should also look like the output from c1541.
   */
-  list = disk => {
+  list() {
+    // TODO: verify disk has been attached successfully
+    // and is valid
+    const disk = this.fileContents;
+
     const BAM = this.getBAMInfo(disk);
     const files = this.getFileList(disk);
     let list = [
