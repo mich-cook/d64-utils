@@ -74,6 +74,10 @@ class Disk {
   #sectorSize = 0x100;
   #BAMOffset = 0x16500;
 
+  constructor(file) {
+    if (file !== undefined) { this.attach(file); }
+  }
+
   /*
     Take a file location and return a representation of the
     disk for use with the other functionailty.
