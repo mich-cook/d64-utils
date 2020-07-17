@@ -71,11 +71,14 @@ class Disk {
   /*
     Take a file location and return a representation of the
     disk for use with the other functionailty.
-
-    TODO: Error handling.
   */
   attach(file) {
-    this.fileContents = fs.readFileSync(file);
+    try {
+      this.fileContents = fs.readFileSync(file);
+    } catch(e) {
+      return e.code;
+    }
+    return true;
   }
 
   /*
@@ -86,9 +89,15 @@ class Disk {
     35-track disks.
 
     When 40-track disks are supported, the file sizes are ready to go.
+
+    Returning false for explicit validation fail. The null at the
+    top is to differentiate between actual fail and no disk to
+    validate.
   */
   validate() {
-    // TODO: verify disk has been attached successfully
+    // no disk to validate.
+    if (this.fileContents === undefined) return null;
+
     const disk = this.fileContents;
 
     switch(disk.length) {
@@ -114,8 +123,9 @@ class Disk {
     ignored and why.
   */
   getBAMInfo() {
-    // TODO: verify disk has been attached successfully
-    // and is valid
+    // disk is not attached or valid
+    if (this.validate() !== true) return null;
+
     const disk = this.fileContents;
 
     let BAMInfo = {};
@@ -177,8 +187,9 @@ class Disk {
     I've seen.
   */
   getDirectoryEntryForOffset(offset) {
-    // TODO: verify disk has been attached successfully
-    // and is valid
+    // disk is not attached or valid
+    if (this.validate() !== true) return null;
+
     const disk = this.fileContents;
 
     // 0x01-0x02 are pointer to next directory listing sector
@@ -244,8 +255,9 @@ class Disk {
     directory entry.
   */
   getFileList() {
-    // TODO: verify disk has been attached successfully
-    // and is valid
+    // disk is not attached or valid
+    if (this.validate() !== true) return null;
+
     const disk = this.fileContents;
 
     let start = 0x16600;  // track 18, sector 1. ignore the BAM.
@@ -292,10 +304,15 @@ class Disk {
     Last entry will be the blocks free.
     Entries in the middle is the file list.
     Should also look like the output from c1541.
+
+    Returning null if disk is not attached or invalid.
+    This helps distinguish between an empty disk and
+    one that's not there or bad.
   */
   list() {
-    // TODO: verify disk has been attached successfully
-    // and is valid
+    // disk is not attached or valid
+    if (this.validate() !== true) return null;
+
     const disk = this.fileContents;
 
     const BAM = this.getBAMInfo(disk);
