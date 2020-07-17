@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/mich-cook/d64-utils/issues"
   },
-  "homepage": "https://github.com/mich-cook/d64-utils#readme"
+  "homepage": "https://github.com/mich-cook/d64-utils#readme",
+  "engines": {
+    "node": ">=12.0"
+  }
 }

@@ -61,12 +61,18 @@
 
 */
 
+// future features to use:
+//  private methods if TC39 includes them (seems to just be fields for now)
+//    getBAMInfo()
+//    getDirectoryEntryForOffset()
+//    getFileList()
+
 const fs = require('fs');
 
 class Disk {
   // constants for a disk
-  get sectorSize()  { return 0x100; }   // 256 bytes per sector
-  get BAMOffset() { return 0x16500; }   // ends at 0x165FF
+  #sectorSize = 0x100;
+  #BAMOffset = 0x16500;
 
   /*
     Take a file location and return a representation of the
@@ -135,7 +141,7 @@ class Disk {
 
     // dos version is either 0x41 "A" or 0x50 "P"
     // appears to be second character of dos type below
-    BAMInfo.dos_version_type = String.fromCharCode(disk[this.BAMOffset + 0x02]);
+    BAMInfo.dos_version_type = String.fromCharCode(disk[this.#BAMOffset + 0x02]);
 
     // 0x03 ignored (unused)
     // 0x04-0x8F are actual BAM entries handled below
@@ -143,19 +149,19 @@ class Disk {
     // name of the disk (displayed at top of directory listing)
     // currently not handling c64 characters
     // disk name is padded to 16 characters (0x9F) with 0xA0 values
-    BAMInfo.name = disk.slice(this.BAMOffset + 0x90, this.BAMOffset + 0x90 + 16).filter(ch => ch !== 0xA0).toString();
+    BAMInfo.name = disk.slice(this.#BAMOffset + 0x90, this.#BAMOffset + 0x90 + 16).filter(ch => ch !== 0xA0).toString();
 
     // 0xA0-0xA1 ignored (0xA0)
 
     // displayed between disk name and dos type
     // in the directory listing
-    BAMInfo.id = String.fromCharCode(disk[this.BAMOffset + 0xA2]) + String.fromCharCode(disk[this.BAMOffset + 0xA3]);
+    BAMInfo.id = String.fromCharCode(disk[this.#BAMOffset + 0xA2]) + String.fromCharCode(disk[this.#BAMOffset + 0xA3]);
 
     // 0xA4 ignored (0xA0)
 
     // DOS type which is frequently "2A", but might also be
     // the values "4A" or "2P"
-    BAMInfo.dostype = String.fromCharCode(disk[this.BAMOffset + 0xA5]) + String.fromCharCode(disk[this.BAMOffset + 0xA6]);
+    BAMInfo.dostype = String.fromCharCode(disk[this.#BAMOffset + 0xA5]) + String.fromCharCode(disk[this.#BAMOffset + 0xA6]);
 
     // 0xA7-0xAA ignored (0xA0)
     // 0xAB-0xFF currently unsupported 40-track information, else 0x00 values
@@ -167,7 +173,7 @@ class Disk {
     // inspecting the bits
     BAMInfo.free = 0;
     for (let i = 0x04; i <= 0x8C; i += 0x04) {
-      BAMInfo.free += Number(disk[this.BAMOffset + i]);
+      BAMInfo.free += Number(disk[this.#BAMOffset + i]);
     }
 
     return BAMInfo;
@@ -289,7 +295,7 @@ class Disk {
       nextListingSector = disk[start + 0x01];
 
       // TODO: BUG: This only works in track 18.
-      start = 0x16500 + (this.sectorSize * nextListingSector);
+      start = 0x16500 + (this.#sectorSize * nextListingSector);
     }
 
     return list;
