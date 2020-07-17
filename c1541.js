@@ -65,13 +65,8 @@ const fs = require('fs');
 
 class Disk {
   // constants for a disk
-  get sectorSize()  {
-    return 0x100;     // 256 bytes per sector
-  }
-
-  get BAMOffset() {
-    return 0x16500;   // ends at 0x165FF
-  }
+  get sectorSize()  { return 0x100; }   // 256 bytes per sector
+  get BAMOffset() { return 0x16500; }   // ends at 0x165FF
 
   /*
     Take a file location and return a representation of the
