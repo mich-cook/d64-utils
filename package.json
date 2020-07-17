@@ -2,7 +2,7 @@
   "name": "@mich-cook/d64-utils",
   "version": "1.0.0",
   "description": ".d64 disk image handling",
-  "main": "index.js",
+  "main": "c1541.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
