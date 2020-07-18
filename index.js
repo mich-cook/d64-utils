@@ -1,3 +1,6 @@
+// use this line if you've installed the npm package
+// instead of the line below it.
+// const c1541 = require('@mich-cook/d64-utils');
 const c1541 = require('./c1541.js');
 const diskName = require('./diskName.js');
 
