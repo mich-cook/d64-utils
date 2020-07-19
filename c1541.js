@@ -79,10 +79,15 @@ class Disk {
   }
 
   /*
-    Take a file location and return a representation of the
-    disk for use with the other functionailty.
+    Take a file location or Buffer and set the buffer
+    so it can be used by the other functionality.
   */
   attach(file) {
+    if (Buffer.isBuffer(file)) {
+      this.fileContents = file;
+      return true;
+    }
+
     try {
       this.fileContents = fs.readFileSync(file);
     } catch(e) {
